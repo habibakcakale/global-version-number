@@ -97,8 +97,8 @@ public class GlobalVersionNumberStep extends AbstractStepImpl {
 
             FilePath fp = workspace.isRemote() ? new FilePath(workspace.getChannel(), "global.vnumber") :
                     new FilePath(new File(StringUtils.stripEnd(workspace.getRemote(), workspace.getBaseName()) + "global.vnumber"));
-            logger.printf("Is Remote %b\n", fp.isRemote());
-            logger.printf("Path: %s" , fp.absolutize());
+            logger.printf("Is Remote %b %n", fp.isRemote());
+            logger.printf("Path: %s %n" , fp.absolutize());
             int newBuildNumber = 0;
             if (fp.exists()) {
                 newBuildNumber = readBuildNumber(fp);
