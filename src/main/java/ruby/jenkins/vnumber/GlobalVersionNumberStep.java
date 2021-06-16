@@ -4,8 +4,6 @@ import com.google.inject.Inject;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
-import hudson.Launcher;
-import hudson.model.Run;
 import hudson.model.TaskListener;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.commons.lang.StringUtils;
@@ -19,13 +17,13 @@ import java.io.*;
 import java.util.Scanner;
 import java.util.Set;
 
-public class RubyVersionNumberStep extends AbstractStepImpl {
+public class GlobalVersionNumberStep extends AbstractStepImpl {
 
     private final String name;
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
-    public RubyVersionNumberStep(String name) {
+    public GlobalVersionNumberStep(String name) {
         this.name = name;
     }
 
@@ -47,7 +45,7 @@ public class RubyVersionNumberStep extends AbstractStepImpl {
 //                    newBuildNumber = Integer.getInteger(input) + 1;
 //                }
 //                fp.write(String.valueOf(newBuildNumber), "utf-8");
-//                build.getBuildVariables().put("Ruby_Build_Number", newBuildNumber);
+//                build.getBuildVariables().put("Global_Build_Number", newBuildNumber);
 //            } catch (Exception e) {
 //                listener.fatalError("Error while checking file", e);
 //            }
@@ -64,7 +62,7 @@ public class RubyVersionNumberStep extends AbstractStepImpl {
 
         @Override
         public String getFunctionName() {
-            return "RubyVersionNumber";
+            return "GlobalVersionNumber";
         }
 
         @Override
@@ -79,17 +77,17 @@ public class RubyVersionNumberStep extends AbstractStepImpl {
     }
 
     public static class Execution extends AbstractSynchronousStepExecution<String> {
-//        @StepContextParameter
+        //        @StepContextParameter
 //        private transient Run run;
-//        @StepContextParameter
-//        private transient EnvVars env;
+        @StepContextParameter
+        private transient EnvVars envVars;
         @Inject(optional = true)
-        private transient RubyVersionNumberStep step;
+        private transient GlobalVersionNumberStep step;
         @StepContextParameter
         TaskListener listener;
         @StepContextParameter
         FilePath workspace;
-//        @StepContextParameter
+        //        @StepContextParameter
 //        Launcher launcher;
         private static final long serialVersionUID = 10L;
 
@@ -108,7 +106,7 @@ public class RubyVersionNumberStep extends AbstractStepImpl {
                 }
             }
             writeBuildNumber(fp, newBuildNumber);
-            env.put("Ruby_Build_Number", String.valueOf(newBuildNumber));
+            this.envVars.put("Global_Build_Number", String.valueOf(newBuildNumber));
             return String.valueOf(newBuildNumber);
         }
 
