@@ -94,37 +94,34 @@ public class GlobalVersionNumberStep extends AbstractStepImpl {
         @Override
         protected String run() throws Exception {
             PrintStream logger = listener.getLogger();
-            String path = StringUtils.stripEnd(workspace.getRemote(), workspace.getBaseName()) + "global.vnumber";
-            logger.printf("%s", path);
-            File fp = new File(path);
+
+            FilePath fp = workspace.isRemote() ? new FilePath(workspace.getChannel(), "global.vnumber") :
+                    new FilePath(new File(StringUtils.stripEnd(workspace.getRemote(), workspace.getBaseName()) + "global.vnumber"));
+            logger.printf("Is Remote %b\n", fp.isRemote());
+            logger.printf("Path: %s" , fp.absolutize());
             int newBuildNumber = 0;
             if (fp.exists()) {
                 newBuildNumber = readBuildNumber(fp);
-            } else {
-                if (!fp.createNewFile()) {
-                    throw new FileNotFoundException("Coudln't create file in " + fp.getAbsolutePath());
-                }
             }
             writeBuildNumber(fp, newBuildNumber);
             this.envVars.put("Global_Build_Number", String.valueOf(newBuildNumber));
             return String.valueOf(newBuildNumber);
         }
 
-        int readBuildNumber(File fp) throws IOException {
-            Scanner scanner = new Scanner(fp, "utf-8");
+        int readBuildNumber(FilePath fp) throws IOException, InterruptedException {
+            InputStream reader = fp.read();
+            Scanner scanner = new Scanner(reader, "utf-8");
             int fileBuildNumber = 0;
             if (scanner.hasNextInt()) {
                 fileBuildNumber = scanner.nextInt();
             }
             int newBuildNumber = fileBuildNumber + 1;
+            reader.close();
             return newBuildNumber;
         }
 
-        void writeBuildNumber(File fp, int newBuildNumber) throws IOException {
-            FileWriterWithEncoding writer = new FileWriterWithEncoding(fp, "utf-8");
-            writer.write(String.valueOf(newBuildNumber));
-            writer.flush();
-            writer.close();
+        void writeBuildNumber(FilePath fp, int newBuildNumber) throws IOException, InterruptedException {
+            fp.write(String.valueOf(newBuildNumber), "utf-8");
         }
     }
 }

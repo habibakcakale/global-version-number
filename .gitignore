@@ -56,3 +56,6 @@ war/node_modules/
 war/yarn-error.log
 .java-version
 .checkstyle
+
+target
+work
